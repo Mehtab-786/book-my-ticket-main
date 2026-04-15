@@ -5,7 +5,7 @@ import ApiError from "../../common/utils/ApiError.utils.js";
 import ApiResponse from "../../common/utils/ApiResponse.utils.js";
 const SALT = 10;
 
-async function register(req, res,next) {
+async function register(req, res, next) {
     try {
         const { name, email, password } = req.body;
 
@@ -24,7 +24,7 @@ async function register(req, res,next) {
         next(error)
     }
 };
-async function login(req, res,next) {
+async function login(req, res, next) {
     try {
         const { email, password } = req.body;
 
@@ -37,11 +37,19 @@ async function login(req, res,next) {
         }
         let user = result.rows[0]
 
+        console.log("Entered password:", `"${password}"`);
+        console.log("Stored hash:", user.password);
+        
         const isCorrectPassword = await bcrypt.compare(password, user.password);
 
+        
+        console.log("Match:", isCorrectPassword);
+        
         if (!isCorrectPassword) {
             return next(ApiError.badRequest("Invalid credentials !"))
         }
+        
+        
 
         const accessToken = jwt.sign(
             { userId: user.id, email: user.email },
@@ -54,7 +62,7 @@ async function login(req, res,next) {
         // );
 
         return ApiResponse.ok(res, 'User logged-in successfully', { accessToken })
-        
+
     } catch (error) {
         return next(ApiError.badRequest("Invalid credentials !"))
     }
