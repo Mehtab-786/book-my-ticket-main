@@ -37,33 +37,27 @@ async function login(req, res, next) {
         }
         let user = result.rows[0]
 
-        console.log("Entered password:", `"${password}"`);
-        console.log("Stored hash:", user.password);
-        
         const isCorrectPassword = await bcrypt.compare(password, user.password);
-
-        
-        console.log("Match:", isCorrectPassword);
         
         if (!isCorrectPassword) {
             return next(ApiError.badRequest("Invalid credentials !"))
         }
         
-        
-
         const accessToken = jwt.sign(
             { userId: user.id, email: user.email },
             process.env.ACCESS_SECRET,
-            { expiresIn: "15m" }
+            { expiresIn: "1d" }
         );
-
+        
         // await pool.query("UPDATE users SET access_token=$1 WHERE id=$2",
         //     [accessToken, user.id]
         // );
+        console.log("Match:", isCorrectPassword);
 
         return ApiResponse.ok(res, 'User logged-in successfully', { accessToken })
 
     } catch (error) {
+        console.log('if err ------------, ', error)
         return next(ApiError.badRequest("Invalid credentials !"))
     }
 };
