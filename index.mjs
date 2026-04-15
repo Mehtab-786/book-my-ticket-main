@@ -8,7 +8,8 @@
 
 import express from "express";
 import pg from "pg";
-import "dotenv/config"
+import dotenv from "dotenv";
+dotenv.config();
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
@@ -41,7 +42,6 @@ export const pool = new pg.Pool({
     rejectUnauthorized: false, // required for most cloud DBs
   },
 });
-
 
 const app = new express();
 app.use(cors());
