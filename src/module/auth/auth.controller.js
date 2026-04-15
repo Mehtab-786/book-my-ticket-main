@@ -40,7 +40,7 @@ async function login(req, res,next) {
         const isCorrectPassword = await bcrypt.compare(password, user.password);
 
         if (!isCorrectPassword) {
-            return ApiError.badRequest("Invalid credentials !")
+            return next(ApiError.badRequest("Invalid credentials !"))
         }
 
         const accessToken = jwt.sign(
@@ -56,8 +56,7 @@ async function login(req, res,next) {
         return ApiResponse.ok(res, 'User logged-in successfully', { accessToken })
         
     } catch (error) {
-        // console.log(error)
-        return ApiError.serverError()
+        return next(ApiError.badRequest("Invalid credentials !"))
     }
 };
 
