@@ -49,15 +49,9 @@ async function login(req, res, next) {
             { expiresIn: "1d" }
         );
         
-        // await pool.query("UPDATE users SET access_token=$1 WHERE id=$2",
-        //     [accessToken, user.id]
-        // );
-        console.log("Match:", isCorrectPassword);
-
         return ApiResponse.ok(res, 'User logged-in successfully', { accessToken })
 
     } catch (error) {
-        console.log('if err ------------, ', error)
         return next(ApiError.badRequest("Invalid credentials !"))
     }
 };
