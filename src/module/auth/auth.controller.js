@@ -12,7 +12,7 @@ async function register(req, res,next) {
         const userQuery = "SELECT * FROM users WHERE email=$1";
         let existingUser = await pool.query(userQuery, [email]);
         if (existingUser.rowCount > 0) {
-            return ApiError.conflict("User already exists!")
+            return next(ApiError.conflict("User already exists!"))
         }
 
         let hashedPassword = await bcrypt.hash(password, SALT);
@@ -24,7 +24,7 @@ async function register(req, res,next) {
         next(error)
     }
 };
-async function login(req, res) {
+async function login(req, res,next) {
     try {
         const { email, password } = req.body;
 
@@ -33,7 +33,7 @@ async function login(req, res) {
         let result = await pool.query(userQuery, [email]);
 
         if (result.rowCount <= 0) {
-            return ApiError.notFound("User not found !");
+            return next(ApiError.notFound("User not found !"));
         }
         let user = result.rows[0]
 
@@ -49,11 +49,12 @@ async function login(req, res) {
             { expiresIn: "15m" }
         );
 
-        await pool.query("UPDATE users SET access_token=$1 WHERE id=$2",
-            [accessToken, user.id]
-        );
+        // await pool.query("UPDATE users SET access_token=$1 WHERE id=$2",
+        //     [accessToken, user.id]
+        // );
 
         return ApiResponse.ok(res, 'User logged-in successfully', { accessToken })
+        
     } catch (error) {
         // console.log(error)
         return ApiError.serverError()
