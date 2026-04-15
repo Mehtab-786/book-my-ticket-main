@@ -96,7 +96,7 @@ app.put("/:id/:name", authMiddleware, async (req, res) => {
     //end transaction by committing
     await conn.query("COMMIT");
     conn.release(); // release the connection back to the pool (so we do not keep the connection open unnecessarily)
-    return ApiResponse.ok(res, "Seat booked successfully");
+    return ApiResponse.ok(res, "Seat booked successfully", {seat : id, name });
   } catch (ex) {
     console.log(ex);
     res.send(500);
