@@ -15,6 +15,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import authRouter from "./src/module/auth/auth.routes.js";
 import { authMiddleware } from "./src/module/auth/auth.middleware.js";
+import ApiResponse from "./src/common/utils/ApiResponse.utils.js";
 
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -83,8 +84,10 @@ app.put("/:id/:name", authMiddleware, async (req, res) => {
     //if no rows found then the operation should fail can't book
     // This shows we Do not have the current seat available for booking
     if (result.rowCount === 0) {
-      res.send({ error: "Seat already booked" });
-      return;
+      return res.status(400).json({
+        success: false,
+        message: "Seat already booked"
+      });
     }
     //if we get the row, we are safe to update
     const sqlU = "update seats set isbooked = 1, name = $2 where id = $1";
@@ -93,7 +96,7 @@ app.put("/:id/:name", authMiddleware, async (req, res) => {
     //end transaction by committing
     await conn.query("COMMIT");
     conn.release(); // release the connection back to the pool (so we do not keep the connection open unnecessarily)
-    res.send(updateResult);
+    return ApiResponse.ok(res, "Seat booked successfully");
   } catch (ex) {
     console.log(ex);
     res.send(500);
